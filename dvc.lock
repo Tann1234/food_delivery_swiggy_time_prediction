@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   data_cleaning:
-    cmd: python -m src.data.data_cleaning
+    cmd: python src/data/data_cleaning.py
     deps:
     - path: data/raw/swiggy.csv
       hash: md5
@@ -16,3 +16,27 @@ stages:
       hash: md5
       md5: a86c6fdd18eb821506983f69b9938a9b
       size: 4210722
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - path: data/cleaned/swiggy_cleaned.csv
+      hash: md5
+      md5: a86c6fdd18eb821506983f69b9938a9b
+      size: 4210722
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 8a84158f7a8f078ffdd10990d69ca873
+      size: 3302
+    params:
+      params.yaml:
+        data_preprocessing.random_state: 42
+        data_preprocessing.test_size: 0.2
+    outs:
+    - path: data/interim/test.csv
+      hash: md5
+      md5: b97602be907d7e340ca9f5c77511356e
+      size: 841447
+    - path: data/interim/train.csv
+      hash: md5
+      md5: 573888d1eded4f8158fec29b6eab4bfa
+      size: 3364742
