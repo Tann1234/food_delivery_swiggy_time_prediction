@@ -15,8 +15,18 @@ stages:
     params:
     - data_preprocessing.test_size
     - data_preprocessing.random_state
-    
+
     outs:
     - data/interim/test.csv
     - data/interim/train.csv
-  
+
+  data_preprocesor:
+    cmd: python src/features/data_preprocesor.py
+    deps:
+    - data/interim/test.csv
+    - data/interim/train.csv
+    - src/features/data_preprocesor.py
+    outs:
+    - data/processed/test_trans.csv
+    - data/processed/train_trans.csv
+    - models/preprocessor.joblib

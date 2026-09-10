@@ -24,23 +24,26 @@ handler.setFormatter(formatter)
 
 def load_data(data_path: Path) -> pd.DataFrame:
     try:
-        pd.read_csv('data_path')
+        df=pd.read_csv(data_path)
+        return df
 
     except FileNotFoundError as e:
         logger.error(f'file to load does not exist')
+        
 
-def split_data(data:pd.DataFrame, test_size:float, random_state:int):
+def split_data(data: pd.DataFrame, test_size: float, random_state: int):
     try:
-        X=data.drop(TARGET, axis=1)
-        y=data[TARGET]
-        train_data, test_data=train_test_split(X,y, test_size=test_size, random_state=random_state)
-
-        logger.info(f'data split into train and test successfully')
-        return train_data.shape, test_data.shape
-    except ValueError as e:
-        logger.error(f'column {TARGET} does not exist in the data')
+        train_data, test_data = train_test_split(
+            data, test_size=test_size, random_state=random_state
+        )
+        logger.info('Data split into train and test successfully')
+        return train_data, test_data
+    except KeyError:
+        logger.error(f'Column {TARGET} not found in data')
+        raise
     except Exception as e:
-        logger.error(f'error occured while splitting the data {e}')
+        logger.error(f'Error occurred while splitting the data: {e}')
+        raise
 
 def read_params(file_path):
     with open(file_path,'r')as f:
@@ -88,7 +91,7 @@ if __name__=='__main__':
     data_subsets=[train_data, test_data]
     data_paths=[save_train_path, save_test_path]
     filename_list=[train_filename, test_filename]
-    for filename, path, data in zip(filename_list, data_paths, data_subsets):
-        save_data(data=data, save_path=path)
+    for filename, path, subset in zip(filename_list, data_paths, data_subsets):
+        save_data(data=subset, save_path=path)
         logger.info(f"{filename.replace('.csv','')} data saved to location")
         

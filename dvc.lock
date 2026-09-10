@@ -9,24 +9,24 @@ stages:
       size: 7726618
     - path: src/data/data_cleaning.py
       hash: md5
-      md5: 13fd7824d2fc87a859cf73fa67a3d1f4
-      size: 12157
+      md5: 86babdd4d427db3d774f39521bab3ce0
+      size: 11847
     outs:
     - path: data/cleaned/swiggy_cleaned.csv
       hash: md5
-      md5: a86c6fdd18eb821506983f69b9938a9b
-      size: 4210722
+      md5: 801339a1967f5284da0923614f446147
+      size: 4500495
   data_preprocessing:
     cmd: python src/data/data_preprocessing.py
     deps:
     - path: data/cleaned/swiggy_cleaned.csv
       hash: md5
-      md5: a86c6fdd18eb821506983f69b9938a9b
-      size: 4210722
+      md5: 801339a1967f5284da0923614f446147
+      size: 4500495
     - path: src/data/data_preprocessing.py
       hash: md5
-      md5: 8a84158f7a8f078ffdd10990d69ca873
-      size: 3302
+      md5: 2d159c2a153e28ae4befab31c35a599c
+      size: 3148
     params:
       params.yaml:
         data_preprocessing.random_state: 42
@@ -34,9 +34,37 @@ stages:
     outs:
     - path: data/interim/test.csv
       hash: md5
-      md5: b97602be907d7e340ca9f5c77511356e
-      size: 841447
+      md5: 975e0083b8d85aecd5539750b640bb29
+      size: 899554
     - path: data/interim/train.csv
       hash: md5
-      md5: 573888d1eded4f8158fec29b6eab4bfa
-      size: 3364742
+      md5: c3cd10e82bfb26f948424a5cdae12cfb
+      size: 3597983
+  data_preprocesor:
+    cmd: python src/features/data_preprocesor.py
+    deps:
+    - path: data/interim/test.csv
+      hash: md5
+      md5: 975e0083b8d85aecd5539750b640bb29
+      size: 899554
+    - path: data/interim/train.csv
+      hash: md5
+      md5: c3cd10e82bfb26f948424a5cdae12cfb
+      size: 3597983
+    - path: src/features/data_preprocesor.py
+      hash: md5
+      md5: bf190575241bb8628dd2996ba12f4f8f
+      size: 6175
+    outs:
+    - path: data/processed/test_trans.csv
+      hash: md5
+      md5: 2519c7291782edca74e688cc944df5b9
+      size: 1089313
+    - path: data/processed/train_trans.csv
+      hash: md5
+      md5: 0d2f47751596e1c0f6bffbf7bb582a07
+      size: 4329420
+    - path: models/preprocessor.joblib
+      hash: md5
+      md5: 5db6a235cb3f7e1b061b029d6847a312
+      size: 8033
