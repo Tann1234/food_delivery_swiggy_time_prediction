@@ -1,156 +1,144 @@
-import pandas as pd
-import joblib
+import json
 import logging
-import mlflow
-import dagshub
 from pathlib import Path
-from sklearn.model_selection import cross_val_score
+import warnings
+import dagshub
+import joblib
+import mlflow
+import pandas as pd
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.compose import TransformedTargetRegressor
+from sklearn.model_selection import cross_val_score
 
-# Intialized dagshub
-dagshub.init(repo_owner='guptatannu538',
-            repo_name='food_delivery_swiggy_time_prediction', 
-            mlflow=True)
+warnings.filterwarnings("ignore")
 
-# set the mlflow tracking server
-mlflow.set_tracking_uri('https://dagshub.com/guptatannu538/food_delivery_swiggy_time_prediction.mlflow')
+dagshub.init(
+    repo_owner="guptatannu538",
+    repo_name="food_delivery_swiggy_time_prediction",
+    mlflow=True,
+)
+mlflow.set_tracking_uri(
+    "https://dagshub.com/guptatannu538/food_delivery_swiggy_time_prediction.mlflow"
+)
+mlflow.set_experiment("DVC Pipeline")
 
-# set mlflow experiment name
-mlflow.set_experiment('DVC Pipeline')
+TARGET = "time_taken"
 
-TARGET='time_taken' 
-
-# create a logger
-logger=logging.getLogger('evaluation')
+logger = logging.getLogger("evaluation")
 logger.setLevel(logging.INFO)
-
-
-# create a handler
-handler=logging.StreamHandler()
+handler = logging.StreamHandler()
 handler.setLevel(logging.INFO)
-
+formatter = logging.Formatter(
+    fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# create a formatter
-formatter=logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# add formatter to handler
-handler.setFormatter(formatter)
 
-def load_data(data_path: Path)-> pd. DataFrame:
-    try:
-        df=pd.read_csv(data_path)
-    except FileNotFoundError:
-        logger.info('The file to load does not exist')
+def load_data(data_path: Path) -> pd.DataFrame:
+    if not data_path.exists():
+        logger.error(f"File does not exist at {data_path}")
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    return pd.read_csv(data_path)
 
-    return df
 
-def make_X_and_y(data: pd.DataFrame, traget_column:str):
-    X= data.drop(columns=[traget_column])
-    y=data[traget_column]
-    return X,y
+def make_X_and_y(data: pd.DataFrame, target_column: str):
+    X = data.drop(columns=[target_column])
+    y = data[target_column]
+    return X, y
+
 
 def load_model(model_path: Path):
-    model=joblib.load(model_path)
-    return model
-
-if __name__== '__main__':
-    # root_path
-    root_path= Path(__file__).parent.parent.parent
-    # train data load path
-    train_data_path=root_path/'data'/'processed'/'train_trans.csv'
-    test_data_path=root_path/'data'/'processed'/ 'test_trans.csv'
-    # model path
-    model_path=root_path/'models'/'model.joblib'
-
-    # load the traning data
-    train_data=load_data(train_data_path)
-    logger.info('Train data loaded successful')
-
-    # load the test data
-    test_data=load_data(test_data_path)
-    logger.info('Test data loaded succesfully')
-
-    # split the data X and y
-    X_train, y_train=make_X_and_y(train_data,TARGET)
-    X_test, y_test=make_X_and_y(test_data, TARGET)
-    logger.info('Data split completed')
-
-    # load the model
-    model=load_model(model_path)
-    logger.info('Model Loaded sucessfully')
+    return joblib.load(model_path)
 
 
-    # get the prediction
-    y_train_pred=model.predict(X_train)
-    y_test_pred=model.predict(X_test)
-    logger.info('prediction on data complete')
+def save_model_info(save_json_path, run_id, artifact_path, model_name):
+    info_dict = {
+        "run_id": run_id,
+        "artifact_path": artifact_path,
+        "model_name": model_name,
+    }
+    with open(save_json_path, "w") as f:
+        json.dump(info_dict, f, indent=4)
 
-    # calculate  the train and test mae
-    train_mae=mean_absolute_error(y_train, y_train_pred)
-    test_mae=mean_absolute_error(y_test, y_test_pred)
-    logger.info('error calculated')
 
-    # calculate  the train and test r2 score
-    train_r2=r2_score(y_train, y_train_pred)
-    test_r2=r2_score(y_test, y_test_pred)
-    logger.info('r2 error calculated')
+if __name__ == "__main__":
+    root_path = Path(__file__).parent.parent.parent
+    train_data_path = root_path / "data" / "processed" / "train_trans.csv"
+    test_data_path = root_path / "data" / "processed" / "test_trans.csv"
+    model_path = root_path / "models" / "model.joblib"
 
-    # calculate the cross val score
-    cv_scores=cross_val_score(model, 
-                    X_train,
-                    y_train, 
-                    cv=5,
-                    scoring='neg_mean_absolute_error',
-                    n_jobs=-1
-                    )
-    logger.info('cross validation complete')
+    train_data = load_data(train_data_path)
+    test_data = load_data(test_data_path)
 
-    # mean cross val score
-    mean_cv_score=-(cv_scores.mean())
+    X_train, y_train = make_X_and_y(train_data, TARGET)
+    X_test, y_test = make_X_and_y(test_data, TARGET)
 
-    # log with mlflow
-    with mlflow.start_run():
-        # set tags
-        mlflow.set_tag('model', 'Food Delivery Time Regressor')
+    model = load_model(model_path)
 
-        # log parameters
+    y_train_pred = model.predict(X_train)
+    y_test_pred = model.predict(X_test)
+
+    train_mae = mean_absolute_error(y_train, y_train_pred)
+    test_mae = mean_absolute_error(y_test, y_test_pred)
+    train_r2 = r2_score(y_train, y_train_pred)
+    test_r2 = r2_score(y_test, y_test_pred)
+
+    cv_scores = cross_val_score(
+        model,
+        X_train,
+        y_train,
+        cv=5,
+        scoring="neg_mean_absolute_error",
+        n_jobs=-1,
+    )
+    mean_cv_score = -(cv_scores.mean())
+
+    with mlflow.start_run() as run:
+        mlflow.set_tag("model", "Food Delivery Time Regressor")
         mlflow.log_params(model.get_params())
 
-        # log metrics
-        mlflow.log_metric('train_mae', train_mae)
-        mlflow.log_metric('test_mae', test_mae)
-        mlflow.log_metric('train_r2', train_r2)
-        mlflow.log_metric('test_r2', test_r2)
-        mlflow.log_metric('cross_val_score', mean_cv_score)
+        mlflow.log_metric("train_mae", train_mae)
+        mlflow.log_metric("test_mae", test_mae)
+        mlflow.log_metric("train_r2", train_r2)
+        mlflow.log_metric("test_r2", test_r2)
+        mlflow.log_metric("cross_val_score", mean_cv_score)
+        mlflow.log_metrics(
+            {f"cv{num}": -score for num, score in enumerate(cv_scores)}
+        )
 
-        # log indivial cv scores
-        mlflow.log_metrics({f'cv{num}': -score for num, score in enumerate(cv_scores)})
+        train_data_input = mlflow.data.from_pandas(train_data, targets=TARGET)
+        test_data_input = mlflow.data.from_pandas(test_data, targets=TARGET)
+        mlflow.log_input(train_data_input, context="training")
+        mlflow.log_input(test_data_input, context="validation")
 
-        # mlflow dataset input datatype
-        train_data_input=mlflow.data.from_pandas(train_data, targets=TARGET)
-        test_data_input=mlflow.data.from_pandas(test_data, targets=TARGET)
+        signature = mlflow.models.infer_signature(
+            model_input=X_train.sample(20, random_state=42),
+            model_output=model.predict(X_train.sample(20, random_state=42)),
+        )
 
-        # log input
-        mlflow.log_input(dataset=train_data_input, context='training')
-        mlflow.log_input(dataset=test_data_input, context='validataion')
+        model_artifact_path = "delivery_time_pred_model"
+        model_name = "delivery_time_pred_model"
 
-        # model signature
-        model_signature=mlflow.models.infer_signature(model_input=X_train.sample(20, random_state=42),
-                                                    model_output=model.predict(X_train.sample(20, random_state=42)))
+        # Log model without registering it here
+        mlflow.sklearn.log_model(
+            sk_model=model,
+            name=model_artifact_path,
+            signature=signature,
+            serialization_format="cloudpickle",
+            registered_model_name=model_name,
+        )
 
-        #log the stacking regressor
-        trusted_types = [
-        "collections.OrderedDict",
-        "lightgbm.basic.Booster",
-        "lightgbm.sklearn.LGBMRegressor",
-        "sklearn.utils._bunch.Bunch"]
+        mlflow.log_artifact(root_path / "models" / "stacking_regressor.joblib")
+        mlflow.log_artifact(root_path / "models" / "power_transformer.joblib")
+        mlflow.log_artifact(root_path / "models" / "preprocessor.joblib")
 
-    mlflow.sklearn.log_model(
-        model,
-        artifact_path="model",
-        signature=model_signature,
-        skops_trusted_types=trusted_types)
+        run_id = run.info.run_id
+        save_json_path = root_path / "run_information.json"
 
-
-    logger.info('Mlflow logging complete and modle logged')
+        save_model_info(
+            save_json_path=save_json_path,
+            run_id=run_id,
+            artifact_path=model_artifact_path,
+            model_name=model_name,
+        )
+        logger.info("Model evaluation completed and info saved.")

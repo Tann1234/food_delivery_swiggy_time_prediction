@@ -50,3 +50,11 @@ stages:
     - data/processed/train_trans.csv
     - models/model.joblib
     - src/model/evaluation.py
+    outs:
+    - run_information.json
+
+  model_registration:
+    cmd: python src/model/register_model.py
+    deps:
+    - run_information.json
+    - src/model/register_model.py
