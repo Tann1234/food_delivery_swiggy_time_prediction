@@ -21,8 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           pip uninstall -y awscli
           pip install --upgrade "dvc[s3]"
-          pip install pytest
-          pip install pytest mlflow dagshub scikit-learn
+          pip install mlflow dagshub scikit-learn
           pip check
 
       - name : Configure AWS Credentials
