@@ -1,0 +1,50 @@
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.14.0
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.9.0
+    skops_trusted_types:
+    - collections.OrderedDict
+    - lightgbm.basic.Booster
+    - lightgbm.sklearn.LGBMRegressor
+    - sklearn.utils._bunch.Bunch
+is_signature_from_type_hint: false
+mlflow_version: 3.16.0
+model_id: null
+model_size_bytes: 46618023
+model_uuid: 8e651c9057dd41f7bdfa68cef56b7059
+prompts: null
+signature:
+  inputs: '[{"type": "double", "name": "age", "required": true}, {"type": "double",
+    "name": "ratings", "required": true}, {"type": "double", "name": "pickup_time_minutes",
+    "required": true}, {"type": "double", "name": "distance", "required": true}, {"type":
+    "double", "name": "weather_fog", "required": true}, {"type": "double", "name":
+    "weather_sandstorms", "required": true}, {"type": "double", "name": "weather_stormy",
+    "required": true}, {"type": "double", "name": "weather_sunny", "required": true},
+    {"type": "double", "name": "weather_windy", "required": true}, {"type": "double",
+    "name": "type_of_order_drinks", "required": true}, {"type": "double", "name":
+    "type_of_order_meal", "required": true}, {"type": "double", "name": "type_of_order_snack",
+    "required": true}, {"type": "double", "name": "type_of_vehicle_motorcycle", "required":
+    true}, {"type": "double", "name": "type_of_vehicle_scooter", "required": true},
+    {"type": "double", "name": "festival_yes", "required": true}, {"type": "double",
+    "name": "city_type_semi-urban", "required": true}, {"type": "double", "name":
+    "city_type_urban", "required": true}, {"type": "double", "name": "is_weekend_1",
+    "required": true}, {"type": "double", "name": "order_time_of_day_evening", "required":
+    true}, {"type": "double", "name": "order_time_of_day_morning", "required": true},
+    {"type": "double", "name": "order_time_of_day_night", "required": true}, {"type":
+    "double", "name": "traffic", "required": true}, {"type": "double", "name": "distance_type",
+    "required": true}, {"type": "long", "name": "vehicle_condition", "required": true},
+    {"type": "double", "name": "multiple_deliveries", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-09-23 05:51:00.576828'

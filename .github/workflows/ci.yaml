@@ -1,0 +1,53 @@
+name: CI-CD Pipeline
+
+on: push
+
+jobs:
+  project-testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache : 'pip'
+
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name : Configure AWS Credentials
+        uses : aws-actions/configure-aws-credentials@v4
+        with :
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-sceret.access-key: ${{secrets.AWS_SECRECT_ACCESS_KEY}}
+          aws-region: ap-southeast-1
+
+      - name : DVC Pull
+        run : |
+          dvc pull
+
+      - name: Test Model Registry
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.SWIGGY_PREDICTION_TIME }}
+        run: |
+          pytest tests/test_model_registry.py
+
+      - name : Test Model Performance
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.SWIGGY_PREDICTION_TIME }}
+        run: |
+          pytest tests\test_model_pref.py
+        
+      - name : Promote Model
+        if : success()
+        env: 
+          DAGSHUB_USER_TOKEN: ${{ secrets.SWIGGY_PREDICTION_TIME }}
+        run : |
+          python scripts/promote_model_to_prod.py
+
