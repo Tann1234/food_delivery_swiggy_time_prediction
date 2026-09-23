@@ -3,15 +3,14 @@ import mlflow
 from mlflow import MlflowClient
 import dagshub
 import json
-import os
 
-dagshub_token = os.getenv("DAGSHUB_USER_TOKEN")
-# set the mlflow tracking server
 dagshub.init(
     repo_owner="guptatannu538",
     repo_name="food_delivery_swiggy_time_prediction",
     mlflow=True,
 )
+
+# set the mlflow tracking server
 mlflow.set_tracking_uri(
     "https://dagshub.com/guptatannu538/food_delivery_swiggy_time_prediction.mlflow"
 )
