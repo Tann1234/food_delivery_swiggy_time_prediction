@@ -19,8 +19,8 @@ jobs:
       - name: install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install --upgrade "dvc[s3]" boto3 botocore
+          pip uninstall -y awscli
+          pip install --upgrade "dvc[s3]"
           pip check
 
       - name : Configure AWS Credentials
