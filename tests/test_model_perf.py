@@ -28,7 +28,7 @@ def load_transformer(transformer_path):
     transformer=joblib.load(transformer_path)
     return transformer
 
-# set model name
+# set models name
 model_name = load_model_information('run_information.json')['model_name']
 stage = 'Staging'
 
