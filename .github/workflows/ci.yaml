@@ -19,7 +19,7 @@ jobs:
       - name: install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip uninstall -y awscli
+          pip install -r requirements.txt
           pip check
 
       - name : Configure AWS Credentials
@@ -43,7 +43,7 @@ jobs:
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.SWIGGY_PREDICTION_TIME }}
         run: |
-          pytest tests\test_model_pref.py
+          pytest tests/test_model_pref.py
         
       - name : Promote Model
         if : success()

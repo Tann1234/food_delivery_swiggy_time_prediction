@@ -2,13 +2,10 @@
 -e .
 
 # external requirements
-click
-Sphinx
-coverage
-awscli
-flake8
 dvc[s3]
 mlflow
 dagshub
 scikit-learn
 pytest
+coverage
+flake8
