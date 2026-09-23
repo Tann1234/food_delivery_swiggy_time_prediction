@@ -10,7 +10,7 @@ dagshub.init(
     mlflow=True,
 )
 
-# set the mlflow tracking server
+# set the mlflow tracking servers
 mlflow.set_tracking_uri(
     "https://dagshub.com/guptatannu538/food_delivery_swiggy_time_prediction.mlflow"
 )
