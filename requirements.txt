@@ -9,3 +9,5 @@ scikit-learn
 pytest
 coverage
 flake8
+lightgbm
+
