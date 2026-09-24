@@ -43,7 +43,7 @@ jobs:
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.SWIGGY_PREDICTION_TIME }}
         run: |
-          pytest tests/test_model_pref.py
+          pytest tests/test_model_perf.py
         
       - name : Promote Model
         if : success()
