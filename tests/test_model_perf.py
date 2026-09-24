@@ -7,6 +7,10 @@ from sklearn.pipeline import Pipeline
 import joblib
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
+import os
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = "guptatannu538"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("DAGSHUB_USER_TOKEN", "")
 
 dagshub.init(
     repo_owner="guptatannu538",
